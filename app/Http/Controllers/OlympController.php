@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Olympiad;
 use App\Models\Participant;
 use App\Models\Question;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class OlympController extends Controller
 {
@@ -149,6 +151,21 @@ class OlympController extends Controller
         imagedestroy($image);
     }
 
+    public function print_test($id, $lang)
+    {
+        $olympiad = \App\Models\Olympiad::find($id);
+
+        if(!$olympiad->olympiad->showResult){
+            return "Еще не закончилась";
+        }
+        $pdf = Pdf::loadView('pdf.participant-result', [
+            'olympiad' => $olympiad,
+            'questions' => $olympiad->questions,
+            'language' => $lang,
+        ]);
+
+        return $pdf->stream(Str::slug($olympiad->name) . '_tasks.pdf');
+    }
 
 
 }
