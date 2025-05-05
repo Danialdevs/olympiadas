@@ -140,33 +140,31 @@
 
         <form id="test-form" action="" method="POST">
             @csrf
-            @foreach($questions as $index => $question)
-                @php
-                    $inlineHtml = preg_replace('/<\/?(p|div)>/', '', $question->getTranslation('question_text', $language));
-                    $inlineHtml = preg_replace('/<br\s*\/?>/', ' ', $inlineHtml);
-                @endphp
-
+            @foreach($participant->olympiad->questions ?? [] as $index => $question)
                 <div class="mb-6">
+                    @php
+                        $inlineHtml = preg_replace('/<\/?(p|div)>/', '', $question->getTranslation('question_text', $participant->language));
+                        $inlineHtml = preg_replace('/<br\s*\/?>/', ' ', $inlineHtml);
+                    @endphp
+
                     <p class="text-base font-medium text-gray-700 mb-2">
                         <span class="inline">{{ $index + 1 }}. {!! $inlineHtml !!}</span>
                     </p>
 
-                    <div class="space-y-2 ml-4">
+                    <div class="space-y-2">
                         @foreach(['a', 'b', 'c', 'd', 'e', 'f', 'g'] as $value)
-                            @php
-                                $optionText = $question->getTranslation('option_' . $value, $language);
-                            @endphp
-
-                            @if(!empty($optionText))
-                                <p><strong>{{ strtoupper($value) }}.</strong> {!! $optionText !!}</p>
+                            @if(!empty($question->{'option_' . $value}))
+                                <label class="flex items-center gap-3 p-3 border border-base-300 rounded-lg hover:bg-base-200 transition cursor-pointer">
+                                    <input type="radio" name="q-{{ $question->id }}" value="{{ $value }}" class="radio radio-primary" {{ isset($answers["question{$question->id}"]) && $answers["question{$question->id}"] === $value ? 'checked' : '' }}>
+                                    <span class="text-base text-base-content">{!! $question->getTranslation('option_' . $value, $participant->language) !!}</span>
+                                </label>
                             @endif
                         @endforeach
                     </div>
                 </div>
             @endforeach
 
-
-        @if($participant->olympiad && $participant->olympiad->questions->isNotEmpty())
+            @if($participant->olympiad && $participant->olympiad->questions->isNotEmpty())
                 <div class="flex justify-center mt-8">
                     <button type="submit" class="text-white bg-indigo-600 px-6 py-2 rounded-md shadow-md hover:bg-indigo-700 transition duration-300">
                         {{ $isKazakh ? 'Жауаптарды жіберу' : 'Отправить ответы' }}
