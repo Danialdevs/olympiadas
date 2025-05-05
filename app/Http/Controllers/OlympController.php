@@ -155,7 +155,7 @@ class OlympController extends Controller
     {
         $olympiad = \App\Models\Olympiad::find($id);
 
-        if(!$olympiad->olympiad->showResult){
+        if(!$olympiad->showResult){
             return "Еще не закончилась";
         }
         $pdf = Pdf::loadView('pdf.participant-result', [
